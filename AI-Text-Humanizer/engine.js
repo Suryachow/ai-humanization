@@ -234,6 +234,64 @@ export const REPLACEMENT_RULES = [
     { pattern: /it is worth considering that/gi, replacements: ["you might want to think about", "also, remember that"] },
     { pattern: /the reality is that/gi, replacements: ["the truth is", "honestly", "look,"] },
     { pattern: /it is important to highlight the fact that/gi, replacements: ["one big thing is", "don't forget that"] },
+
+    // Ultra-Aggressive AI Dismantling (New)
+    { pattern: /\bin the ever-evolving landscape of\b/gi, replacements: ["in the changing world of", "as things change in", "nowadays in"] },
+    { pattern: /\bthe complex interplay between\b/gi, replacements: ["how $1 and $2 mix", "the link between", "the way $1 affects $2"] },
+    { pattern: /\ba multifaceted approach\b/gi, replacements: ["a few different ways", "a bunch of steps", "a mix of things"] },
+    { pattern: /\bshed light on\b/gi, replacements: ["show us", "explain", "clear up"] },
+    { pattern: /\bstands as a testament to\b/gi, replacements: ["shows us just how", "is proof of", "shows"] },
+    { pattern: /\bnavigate the complexities of\b/gi, replacements: ["deal with", "handle", "manage"] },
+    { pattern: /\bthe core of the issue\b/gi, replacements: ["the main point", "the big problem", "basically"] },
+    { pattern: /\ba wide array of\b/gi, replacements: ["lots of", "a bunch of", "all sorts of"] },
+    { pattern: /\btake a closer look at\b/gi, replacements: ["look at", "check out", "see"] },
+    { pattern: /\bit is widely believed that\b/gi, replacements: ["most people think", "it's often said that", "people usually think"] },
+    { pattern: /\bthis brings us to the point that\b/gi, replacements: ["so", "this means", "which shows"] },
+    { pattern: /\bthe fact of the matter is\b/gi, replacements: ["look,", "honestly,", "the truth is"] },
+    { pattern: /\bunderpinning this is\b/gi, replacements: ["behind this is", "what supports this is"] },
+    { pattern: /\bmeticulously crafted\b/gi, replacements: ["made carefully", "well-made", "done right"] },
+    { pattern: /\bgarners attention\b/gi, replacements: ["gets noticed", "people notice it"] },
+    { pattern: /\bleverage the potential of\b/gi, replacements: ["use", "make the most of"] },
+    { pattern: /\bin the current data-driven era\b/gi, replacements: ["nowadays", "with all this tech", "today"] },
+    { pattern: /\bdelve deeper into\b/gi, replacements: ["really look at", "explore more", "dig into"] },
+    { pattern: /\ba pivotal moment\b/gi, replacements: ["a big shift", "a turning point", "a huge deal"] },
+    { pattern: /\bthe overarching theme\b/gi, replacements: ["the main idea", "what it's mostly about"] },
+    { pattern: /\bequipping individuals with\b/gi, replacements: ["giving people", "helping people get"] },
+    { pattern: /\bprofound impact\b/gi, replacements: ["big effect", "huge change", "major impact"] },
+    { pattern: /\bcatalyst for change\b/gi, replacements: ["reason things change", "big spark"] },
+    { pattern: /\bfoster a sense of\b/gi, replacements: ["help build", "create a feeling of"] },
+    { pattern: /\bparadigm of\b/gi, replacements: ["way of", "model of"] },
+    { pattern: /\ba transformative journey\b/gi, replacements: ["a big change", "a real shift"] },
+    { pattern: /\btapestry of life\b/gi, replacements: ["way life works", "mix of life"] },
+    { pattern: /\bunlock the secrets of\b/gi, replacements: ["find out", "show how $1 works"] },
+    { pattern: /\bholistic perspective\b/gi, replacements: ["full view", "big picture"] },
+
+    // Sentence Flip Patterns (Move end to start)
+    { pattern: /the (.*) is (.*) because (.*)\./gi, replacements: ["Because $3, the $1 is $2.", "$1 is $2 since $3."] },
+    { pattern: /it is important to (.*) so that (.*)\./gi, replacements: ["To $1, you should $2.", "So that $2, it's vital to $1."] },
+    { pattern: /\bif it is (.*), then (.*)\./gi, replacements: ["$2 if it's $1.", "Given it's $1, then $2."] },
+
+    // Casual Contractions Pass
+    { pattern: /\bis going to\b/gi, replacements: ["is gonna", "will"] },
+    { pattern: /\bwant to\b/gi, replacements: ["wanna", "want to"] },
+    { pattern: /\bhave to\b/gi, replacements: ["gotta", "must"] },
+    { pattern: /\bout of\b/gi, replacements: ["outta", "out of"] },
+    { pattern: /\bkind of\b/gi, replacements: ["kinda", "sort of"] },
+    { pattern: /\bsort of\b/gi, replacements: ["sorta", "basically"] },
+
+    // Breaking the "AI Certainty" Bias
+    { pattern: /\bit is essential to\b/gi, replacements: ["you really should", "I think it's key to", "we need to"] },
+    { pattern: /\bit is important that\b/gi, replacements: ["look, we need", "it really matters that"] },
+    { pattern: /\bdemonstrates a clear\b/gi, replacements: ["really shows a", "paints a clear"] },
+    { pattern: /\bhighly effective\b/gi, replacements: ["pretty good", "solid", "works well"] },
+    { pattern: /\bindispensable\b/gi, replacements: ["vital", "needed", "super important"] },
+    { pattern: /\bultimately, this leads to\b/gi, replacements: ["in the end, you get", "so, basically, it ends up"] },
+    { pattern: /\bto conclude, we can see\b/gi, replacements: ["so, it's pretty clear", "basically, we can tell"] },
+    { pattern: /\bit is evident from the data\b/gi, replacements: ["looking at this, it's clear", "I'd say it's obvious"] },
+    { pattern: /\bharnessing the power of\b/gi, replacements: ["using", "taking advantage of"] },
+    { pattern: /\boffers a unique opportunity\b/gi, replacements: ["gives a cool chance", "is a great way to"] },
+    { pattern: /\bthis engineering brings significant benefits\b/gi, replacements: ["this tech is actually really helpful", "this stuff has some major pros"] },
+    { pattern: /\bin areas such as\b/gi, replacements: ["in stuff like", "in places like"] },
 ];
 
 export class AIHumanizerEngine {
@@ -287,27 +345,37 @@ export class AIHumanizerEngine {
         for (let pass = 0; pass < 3; pass++) {
             REPLACEMENT_RULES.forEach(rule => {
                 if (Math.random() < aggressiveIntensity) {
-                    res = res.replace(rule.pattern, () => {
-                        return rule.replacements[Math.floor(Math.random() * rule.replacements.length)];
+                    res = res.replace(rule.pattern, (...args) => {
+                        const chosen = rule.replacements[Math.floor(Math.random() * rule.replacements.length)];
+                        // Manually replace $1, $2, $3... placeholders with captured groups
+                        return chosen.replace(/\$(\d+)/g, (match, index) => {
+                            const groupIndex = parseInt(index);
+                            return args[groupIndex] !== undefined ? args[groupIndex] : match;
+                        });
                     });
                 }
             });
         }
 
-        // 3. Ultra Synonym Logic
-        let baseProb = this.mode === 'casual' ? 0.45 : (this.mode === 'professional' ? 0.20 : 0.35);
-        if (detectedContext === 'academic') baseProb *= 0.8;
-        if (detectedContext === 'conversational') baseProb *= 1.25;
-        const synonymProb = baseProb * (intensity > 0.8 ? 1.5 : intensity);
+        // 3. Smart Synonym Logic (Reduced Prob to save meaning)
+        let baseProb = this.mode === 'casual' ? 0.30 : (this.mode === 'professional' ? 0.12 : 0.22);
+        if (detectedContext === 'academic') baseProb *= 0.7;
+        if (detectedContext === 'conversational') baseProb *= 1.2;
+
+        // Intensity caps at 0.5 synonym prob to prevent "word salad"
+        const synonymProb = Math.min(0.5, baseProb * (intensity > 0.8 ? 1.2 : intensity));
 
         const words = res.split(/\b/);
         const processed = words.map(w => {
             const lower = w.toLowerCase();
-            if (/^[a-z]{3,}$/.test(lower) && !this.stopWords.includes(lower) && !lower.startsWith('__fixed')) {
+            // Only synonymize common words, avoid brand names/caps
+            if (/^[a-z]{3,12}$/.test(lower) && !this.stopWords.includes(lower) && !lower.startsWith('__fixed')) {
                 const syns = this.synonyms[lower];
                 if (syns && syns.length > 0 && Math.random() < synonymProb) {
-                    let choices = syns.filter(s => s.length <= lower.length + 2);
-                    if (choices.length === 0) choices = syns;
+                    // Filter: Only pick synonyms that are shorter or simpler (length <= original + 1)
+                    let choices = syns.filter(s => s.length <= lower.length + 1 && !s.includes('-') && !s.includes(' '));
+                    if (choices.length === 0) choices = syns.slice(0, 2); // Fallback to first few (usually most common)
+
                     const syn = choices[Math.floor(Math.random() * choices.length)];
                     if (w[0] === w[0].toUpperCase()) {
                         return syn.charAt(0).toUpperCase() + syn.slice(1);
@@ -328,24 +396,26 @@ export class AIHumanizerEngine {
             if (Math.random() < intensity) res = res.replace(h.pattern, h.repl[Math.floor(Math.random() * h.repl.length)]);
         });
 
-        // 5. Structural Shifts & Perspective Injection
+        // 5. Structural Shifts & Perspective Injection (Prose Only)
         const perspectiveMarkers = ["To be fair, ", "I think ", "In my view, ", "Honestly, ", "Actually, ", "Generally speaking, "];
-        const paragraphs = res.split(/\n\n+/);
+        const paragraphs = res.split(/\n+/);
         res = paragraphs.map(para => {
-            if (para.length > 50 && Math.random() < (intensity * 0.3)) {
+            const isDataLine = /^[^a-z]*[A-Z][^:]+:/.test(para.trim()); // e.g. "Location: "
+            if (!isDataLine && para.length > 80 && Math.random() < (intensity * 0.25)) {
                 const marker = perspectiveMarkers[Math.floor(Math.random() * perspectiveMarkers.length)];
                 return marker + para.charAt(0).toLowerCase() + para.slice(1);
             }
             return para;
-        }).join('\n\n');
+        }).join('\n');
 
-        // 6. Fillers
+        // 6. Natural Fillers (Skip Data Lines)
         const sentences = res.split(/([.!?]\s+)/);
         res = sentences.map(sent => {
-            if (sent.length > 30 && Math.random() < (intensity * 0.5)) {
-                sent = sent.replace(/\b(is|are|was|were|has|have)\b/gi, (m) => {
+            const isDataLine = /^[A-Z][^:]+:/.test(sent.trim());
+            if (!isDataLine && sent.length > 50 && Math.random() < (intensity * 0.35)) {
+                sent = sent.replace(/\b(is|are|was|were)\b/gi, (m) => {
                     const qualifiers = [" basically", " sort of", " pretty much", " just", " kind of"];
-                    return m + (Math.random() > 0.5 ? qualifiers[Math.floor(Math.random() * qualifiers.length)] : "");
+                    return m + (Math.random() > 0.6 ? qualifiers[Math.floor(Math.random() * qualifiers.length)] : "");
                 });
             }
             return sent;
@@ -391,6 +461,41 @@ export class AIHumanizerEngine {
             res = res.replace(/\b(AI|It|They|He|She|We|The)\s+(is|was|are|were)\s+now\b/gi, "$1 $2 basically");
             res = res.replace(/\bIt is\b/gi, "It's");
             res = res.replace(/\bThere is\b/gi, "There's");
+
+            // 8b. Chaos Optimizer: Inject human quirks that AI detectors hate (Paragraphs Only)
+            const chaosMarkers = [
+                { p: /\. /g, r: ["... ", ". ", ". Honestly, ", ". Well, ", ". Mind you, "] },
+                { p: /, /g, r: [", ", ", basically, ", " — ", ", like, ", ", you know, "] },
+                { p: /\b(and|but|so)\b/gi, r: ["$1", "and, wait, ", "but, actually, ", "so, frankly, ", "and — weirdly — "] }
+            ];
+
+            chaosMarkers.forEach(cm => {
+                // Higher chance at high intensity, but NOT on short lines or list-like lines
+                if (Math.random() < (intensity * 0.3)) {
+                    res = res.replace(cm.p, (match) => {
+                        // Check if we are inside a factual list line
+                        const lineContext = res.slice(Math.max(0, res.indexOf(match) - 30), res.indexOf(match));
+                        if (lineContext.includes(':')) return match; // skip if near a colon
+
+                        return cm.r[Math.floor(Math.random() * cm.r.length)];
+                    });
+                }
+            });
+
+            // 8c. Structural Flip: Re-randomize some sentence structures
+            if (intensity > 0.85) {
+                const sParts = res.split(/([.!?]\s+)/);
+                res = sParts.map(s => {
+                    // Only flip if it's a clean 'because' clause and not too complex
+                    if (s.includes(' because ') && s.split(' because ').length === 2 && Math.random() < 0.25) {
+                        const [p1, p2] = s.split(' because ');
+                        if (p2.length > 5 && p1.length > 5) {
+                            return "Because " + p2.trim() + ", " + p1.charAt(0).toLowerCase() + p1.slice(1);
+                        }
+                    }
+                    return s;
+                }).join('');
+            }
         }
 
         // 9. Polish

@@ -1,10 +1,26 @@
 {
     "version": 2,
-    "name": "ai-humanizer-backend",
+    "name": "ai-humanizer-fullstack",
     "builds": [
         {
             "src": "server.js",
             "use": "@vercel/node"
+        },
+        {
+            "src": "index.html",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "*.js",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "*.css",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "*.json",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
@@ -15,6 +31,10 @@
         {
             "src": "/health",
             "dest": "/server.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/$1"
         }
     ]
 }

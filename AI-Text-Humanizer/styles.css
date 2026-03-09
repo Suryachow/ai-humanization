@@ -329,6 +329,44 @@ textarea:focus {
   transition: width 0.3s;
 }
 
+.context-indicator {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeIn 0.5s ease;
+}
+
+.context-indicator i {
+  color: var(--primary);
+  font-size: 0.875rem;
+}
+
+.context-indicator strong {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Output Styling */
 .output-area {
   position: relative;

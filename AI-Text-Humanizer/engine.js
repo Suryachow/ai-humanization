@@ -279,6 +279,15 @@ export const REPLACEMENT_RULES = [
     { pattern: /\bkind of\b/gi, replacements: ["kinda", "sort of"] },
     { pattern: /\bsort of\b/gi, replacements: ["sorta", "basically"] },
 
+    // Deep Clause Structural Scramblers (The Plagiarism Killers)
+    { pattern: /\bthe (.*) is (.*) features (.*)\./gi, replacements: ["By having $3, the $1 is $2.", "With $3, the $1 is $2."] },
+    { pattern: /\bit features (.*), (.*), and (.*)\./gi, replacements: ["This comes with $1, $2, and $3.", "You'll find $1, $2, and $3 inside."] },
+    { pattern: /\bis known for its (.*), (.*), and (.*)\./gi, replacements: ["People love it for its $1, $2, and $3.", "It really stands out because of its $1, $2, and $3."] },
+
+    // Active Voice Shifts
+    { pattern: /\bwas (.*) by (.*)\b/gi, replacements: ["$2 $1 this", "$2 was the one that $1 this"] },
+    { pattern: /\b(is|are) used periodically in\b/gi, replacements: ["regularly shows up in", "is a common part of"] },
+
     // Breaking the "AI Certainty" Bias
     { pattern: /\bit is essential to\b/gi, replacements: ["you really should", "I think it's key to", "we need to"] },
     { pattern: /\bit is important that\b/gi, replacements: ["look, we need", "it really matters that"] },
@@ -356,12 +365,21 @@ export class AIHumanizerEngine {
             res = res.replace(regex, ph);
         });
 
+        // Unique Variety Handler (Prevents filler repetition)
+        const tracker = { fillers: new Map() };
+        const getUnique = (arr, maxRepeat = 2) => {
+            const available = arr.filter(f => (tracker.fillers.get(f) || 0) < maxRepeat);
+            const choice = (available.length > 0 ? available : arr)[Math.floor(Math.random() * (available.length || arr.length))];
+            tracker.fillers.set(choice, (tracker.fillers.get(choice) || 0) + 1);
+            return choice;
+        };
+
         // 2. Multi-Pass Static Replacements
         for (let pass = 0; pass < 3; pass++) {
             REPLACEMENT_RULES.forEach(rule => {
                 if (Math.random() < aggressiveIntensity) {
                     res = res.replace(rule.pattern, (...args) => {
-                        const chosen = rule.replacements[Math.floor(Math.random() * rule.replacements.length)];
+                        const chosen = getUnique(rule.replacements);
                         // Manually replace $1, $2, $3... placeholders with captured groups
                         return chosen.replace(/\$(\d+)/g, (match, index) => {
                             const groupIndex = parseInt(index);
@@ -412,13 +430,12 @@ export class AIHumanizerEngine {
         });
 
         // 5. Structural Shifts & Perspective Injection (Prose Only)
-        const perspectiveMarkers = ["To be fair, ", "I think ", "In my view, ", "Honestly, ", "Actually, ", "Generally speaking, "];
+        const perspectiveMarkers = ["To be fair, ", "I think ", "In my view, ", "Honestly, ", "Actually, ", "Generally speaking, ", "Personally, "];
         const paragraphs = res.split(/\n+/);
         res = paragraphs.map(para => {
             const isDataLine = /^[^a-z]*[A-Z][^:]+:/.test(para.trim()); // e.g. "Location: "
-            if (!isDataLine && para.length > 80 && Math.random() < (intensity * 0.25)) {
-                const marker = perspectiveMarkers[Math.floor(Math.random() * perspectiveMarkers.length)];
-                return marker + para.charAt(0).toLowerCase() + para.slice(1);
+            if (!isDataLine && para.length > 90 && Math.random() < (intensity * 0.22)) {
+                return getUnique(perspectiveMarkers) + para.charAt(0).toLowerCase() + para.slice(1);
             }
             return para;
         }).join('\n');
@@ -427,10 +444,10 @@ export class AIHumanizerEngine {
         const sentences = res.split(/([.!?]\s+)/);
         res = sentences.map(sent => {
             const isDataLine = /^[A-Z][^:]+:/.test(sent.trim());
-            if (!isDataLine && sent.length > 50 && Math.random() < (intensity * 0.35)) {
+            if (!isDataLine && sent.length > 60 && Math.random() < (intensity * 0.3)) {
                 sent = sent.replace(/\b(is|are|was|were)\b/gi, (m) => {
-                    const qualifiers = [" basically", " sort of", " pretty much", " just", " kind of"];
-                    return m + (Math.random() > 0.6 ? qualifiers[Math.floor(Math.random() * qualifiers.length)] : "");
+                    const qualifiers = [" basically", " sort of", " pretty much", " just", " kind of", " really"];
+                    return m + (Math.random() > 0.7 ? getUnique(qualifiers) : "");
                 });
             }
             return sent;
@@ -444,28 +461,18 @@ export class AIHumanizerEngine {
         if (burstIntensity > 0.4) {
             const sParts = res.split(/([.!?]\s+)/);
             const bursty = [];
-            const humanBursts = ["Just a thought.", "No doubt.", "Simple.", "Makes sense.", "It's obvious.", "Really."];
-            const bridges = ["And the thing is, ", "Actually, when you think about it, ", "But here's the kicker: ", "Plus, ", "Basically, ", "So, "];
+            const humanBursts = ["Just a thought.", "No doubt.", "Simple.", "Makes sense.", "It's obvious.", "Really.", "I'd say."];
+            const bridges = ["And the thing is, ", "Actually, when you think about it, ", "But here's the kicker: ", "Plus, ", "Basically, ", "So, ", "Wait, "];
 
             for (let i = 0; i < sParts.length; i++) {
                 const part = sParts[i];
                 if (!part) continue;
 
-                if (part.length > 90 && i < sParts.length - 2 && Math.random() < (burstIntensity * 0.15)) {
-                    const bridge = bridges[Math.floor(Math.random() * bridges.length)];
-                    bursty.push(part + " " + bridge + sParts[i + 2].charAt(0).toLowerCase() + sParts[i + 2].slice(1));
+                if (part.length > 100 && i < sParts.length - 2 && Math.random() < (burstIntensity * 0.12)) {
+                    bursty.push(part + " " + getUnique(bridges) + sParts[i + 2].charAt(0).toLowerCase() + sParts[i + 2].slice(1));
                     i += 2;
-                    continue;
-                }
-
-                if (part.length > 100 && Math.random() < (burstIntensity * 0.25)) {
-                    bursty.push(part + " " + humanBursts[Math.floor(Math.random() * humanBursts.length)]);
-                } else if (part.length > 150 && Math.random() < (burstIntensity * 0.4)) {
-                    const splitIdx = part.indexOf(',', part.length / 3);
-                    if (splitIdx !== -1) {
-                        bursty.push(part.slice(0, splitIdx) + ".");
-                        bursty.push(" Also, " + part.slice(splitIdx + 1).trim());
-                    } else bursty.push(part);
+                } else if (part.length > 110 && Math.random() < (burstIntensity * 0.2)) {
+                    bursty.push(part + " " + getUnique(humanBursts));
                 } else bursty.push(part);
             }
             res = bursty.join('');
@@ -477,22 +484,19 @@ export class AIHumanizerEngine {
             res = res.replace(/\bIt is\b/gi, "It's");
             res = res.replace(/\bThere is\b/gi, "There's");
 
-            // 8b. Chaos Optimizer: Inject human quirks that AI detectors hate (Paragraphs Only)
+            // 8b. Chaos Optimizer: Inject human quirks (Paragraphs Only)
             const chaosMarkers = [
-                { p: /\. /g, r: ["... ", ". ", ". Honestly, ", ". Well, ", ". Mind you, "] },
-                { p: /, /g, r: [", ", ", basically, ", " — ", ", like, ", ", you know, "] },
-                { p: /\b(and|but|so)\b/gi, r: ["$1", "and, wait, ", "but, actually, ", "so, frankly, ", "and — weirdly — "] }
+                { p: /\. /g, r: ["... ", ". ", ". Honestly, ", ". Well, ", ". Mind you, ", ". Actually, "] },
+                { p: /, /g, r: [", ", ", basically, ", " — ", ", like, ", ", you know, ", ", frankly, "] },
+                { p: /\b(and|but|so)\b/gi, r: ["$1", "and, wait, ", "but, actually, ", "so, frankly, "] }
             ];
 
             chaosMarkers.forEach(cm => {
-                // Higher chance at high intensity, but NOT on short lines or list-like lines
-                if (Math.random() < (intensity * 0.3)) {
+                if (Math.random() < (intensity * 0.25)) {
                     res = res.replace(cm.p, (match) => {
-                        // Check if we are inside a factual list line
-                        const lineContext = res.slice(Math.max(0, res.indexOf(match) - 30), res.indexOf(match));
-                        if (lineContext.includes(':')) return match; // skip if near a colon
-
-                        return cm.r[Math.floor(Math.random() * cm.r.length)];
+                        const lineContext = res.slice(Math.max(0, res.indexOf(match) - 40), res.indexOf(match));
+                        if (lineContext.includes(':')) return match;
+                        return getUnique(cm.r);
                     });
                 }
             });
@@ -520,8 +524,8 @@ export class AIHumanizerEngine {
                         const mid = Math.floor(p.length / 2);
                         const commaIdx = p.indexOf(',', mid - 20);
                         if (commaIdx !== -1) {
-                            // Break sentence at comma to create human-like fragments
-                            return p.slice(0, commaIdx) + ". Honestly, " + p.slice(commaIdx + 1).trim();
+                            const markers = [". Honestly, ", ". Actually, ", ". Well, ", ". Mind you, ", ". Fact is, "];
+                            return p.slice(0, commaIdx) + getUnique(markers) + p.slice(commaIdx + 1).trim();
                         }
                     }
                     return p;

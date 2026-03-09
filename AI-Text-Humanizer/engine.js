@@ -292,6 +292,21 @@ export const REPLACEMENT_RULES = [
     { pattern: /\boffers a unique opportunity\b/gi, replacements: ["gives a cool chance", "is a great way to"] },
     { pattern: /\bthis engineering brings significant benefits\b/gi, replacements: ["this tech is actually really helpful", "this stuff has some major pros"] },
     { pattern: /\bin areas such as\b/gi, replacements: ["in stuff like", "in places like"] },
+    { pattern: /\bacquire\b/gi, replacements: ["get", "pick up", "grab"] },
+    { pattern: /\bapproximately\b/gi, replacements: ["about", "around", "roughly"] },
+    { pattern: /\bconjunction\b/gi, replacements: ["link", "connection", "mix"] },
+    { pattern: /\bsubsequently\b/gi, replacements: ["later", "then", "after that"] },
+    { pattern: /\binitially\b/gi, replacements: ["at first", "firstly", "to start with"] },
+    { pattern: /\bmodify\b/gi, replacements: ["change", "tweak", "adjust"] },
+    { pattern: /\bpurchase\b/gi, replacements: ["buy", "get"] },
+    { pattern: /\bretain\b/gi, replacements: ["keep", "hold on to"] },
+
+    // Anti-Detection Sentence Starters (Breaking AI's "Firstly, Secondly" loop)
+    { pattern: /^Firstly, /gi, replacements: ["To kick things off, ", "Starting with, ", "So, for one, "] },
+    { pattern: /^Secondly, /gi, replacements: ["Then there's, ", "Also, ", "Moving on, "] },
+    { pattern: /^Lastly, /gi, replacements: ["Finally, ", "The last thing is, ", "To wrap it up, "] },
+    { pattern: /^In addition, /gi, replacements: ["Plus, ", "Another thing is, ", "Also, "] },
+    { pattern: /^Moreover, /gi, replacements: ["Actually, ", "What's more, ", "On top of that, "] },
 ];
 
 export class AIHumanizerEngine {
@@ -494,6 +509,22 @@ export class AIHumanizerEngine {
                         }
                     }
                     return s;
+                }).join('');
+            }
+
+            // 8d. Burstiness Overload: Splicing and Fragmenting (The AI Killer)
+            if (intensity > 0.8) {
+                const pieces = res.split(/([.!?]\s+)/);
+                res = pieces.map(p => {
+                    if (p.length > 120 && Math.random() < 0.3) {
+                        const mid = Math.floor(p.length / 2);
+                        const commaIdx = p.indexOf(',', mid - 20);
+                        if (commaIdx !== -1) {
+                            // Break sentence at comma to create human-like fragments
+                            return p.slice(0, commaIdx) + ". Honestly, " + p.slice(commaIdx + 1).trim();
+                        }
+                    }
+                    return p;
                 }).join('');
             }
         }
